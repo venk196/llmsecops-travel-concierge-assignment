@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secure Travel Concierge</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; background: #07111f; color: #e8f0ff; display: grid; place-items: center; }
+    main { width: min(760px, 90vw); background: #0d1b2e; border: 1px solid #29415f; border-radius: 18px; padding: 28px; box-shadow: 0 24px 70px #0008; }
+    h1 { margin: 0 0 6px; } p { color: #a9bdd8; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 130px; border-radius: 12px; border: 1px solid #365577; background: #081423; color: white; padding: 14px; font: inherit; }
+    button { margin-top: 12px; padding: 11px 18px; border: 0; border-radius: 10px; background: #35d0ba; color: #03211d; font-weight: 800; cursor: pointer; }
+    pre { white-space: pre-wrap; background: #07111f; padding: 16px; border-radius: 12px; min-height: 70px; }
+    .meta { font-size: 13px; color: #7ea2c9; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Secure Travel Concierge</h1>
+  <p>Guardrailed, routed, and observable travel assistance.</p>
+  <textarea id="prompt" placeholder="Plan a three-day food and culture trip to Singapore under SGD 900."></textarea>
+  <button id="send">Ask concierge</button>
+  <pre id="answer">Ready.</pre>
+  <div class="meta" id="meta"></div>
+</main>
+<script>
+const endpoint = `${location.protocol}//${location.hostname}:8080/chat`;
+document.querySelector('#send').onclick = async () => {
+  const answer = document.querySelector('#answer');
+  answer.textContent = 'Working...';
+  try {
+    const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({prompt: document.querySelector('#prompt').value})});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Request failed');
+    answer.textContent = data.answer;
+    document.querySelector('#meta').textContent = `Route: ${data.route} | Trace: ${data.trace_id}`;
+  } catch (error) { answer.textContent = error.message; }
+};
+</script>
+</body>
+</html>
+
